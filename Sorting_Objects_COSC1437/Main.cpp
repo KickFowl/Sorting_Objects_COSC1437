@@ -24,10 +24,9 @@ int getConsoleBufferWidth() {
 namespace
 {
     constexpr size_t BOX_INNER_WIDTH = 28;
-    constexpr size_t BOX_WIDTH = BOX_INNER_WIDTH + 4;  // "| " + text + " |"
-    constexpr size_t BOX_GAP = 1;                    // spaces between boxes
+    constexpr size_t BOX_WIDTH = BOX_INNER_WIDTH + 4;
+    constexpr size_t BOX_GAP = 1;                    
 
-    // Splits text on spaces into lines no longer than `width`
     std::vector<std::string> wrapText(const std::string& text, size_t width)
     {
         std::vector<std::string> lines;
@@ -48,7 +47,6 @@ namespace
         return lines;
     }
 
-    // The text lines that go inside one item's box
     std::vector<std::string> itemLines(const Item& item)
     {
         std::vector<std::string> lines = wrapText(item.getName(), BOX_INNER_WIDTH);
@@ -70,11 +68,10 @@ namespace
 
 void printItems(const std::vector<Item*>& items)
 {
-    // Leave the last column free so the console doesn't wrap early
+    
     const int width = getConsoleBufferWidth();
     const size_t usable = width > 1 ? static_cast<size_t>(width) - 1 : 80;
 
-    // As many boxes as fit in one row (always at least one)
     const size_t perRow = std::max<size_t>(1, (usable + BOX_GAP) / (BOX_WIDTH + BOX_GAP));
 
     const std::string border = "+" + std::string(BOX_INNER_WIDTH + 2, '-') + "+";
@@ -85,7 +82,6 @@ void printItems(const std::vector<Item*>& items)
         const size_t end = std::min(start + perRow, items.size());
         const size_t count = end - start;
 
-        // Center this row based on how many boxes it actually has
         const size_t rowWidth = count * BOX_WIDTH + (count - 1) * BOX_GAP;
         const size_t margin = usable > rowWidth ? (usable - rowWidth) / 2 : 0;
         const std::string pad(margin, ' ');
@@ -98,13 +94,11 @@ void printItems(const std::vector<Item*>& items)
             height = std::max(height, boxes.back().size());
         }
 
-        // Top borders
         std::cout << pad;
         for (size_t b = 0; b < boxes.size(); ++b)
             std::cout << (b ? gap : "") << border;
         std::cout << '\n';
 
-        // Content lines
         for (size_t line = 0; line < height; ++line)
         {
             std::cout << pad;
@@ -116,7 +110,6 @@ void printItems(const std::vector<Item*>& items)
             std::cout << '\n';
         }
 
-        // Bottom borders
         std::cout << pad;
         for (size_t b = 0; b < boxes.size(); ++b)
             std::cout << (b ? gap : "") << border;
@@ -130,12 +123,10 @@ void printMenu(std::string name, std::vector<std::string> items, int collumns = 
     const size_t total = width > 0 ? static_cast<size_t>(width) : 80;
     const std::string line(total, '=');
 
-    // Returns the left padding that centers something `w` characters wide
     auto indent = [&](size_t w) {
         return std::string(total > w ? (total - w) / 2 : 0, ' ');
         };
 
-    // Number each entry: "1. Start Game"
     std::vector<std::string> labels;
     size_t labelWidth = 0;
     for (size_t i = 0; i < items.size(); ++i)
@@ -144,7 +135,6 @@ void printMenu(std::string name, std::vector<std::string> items, int collumns = 
         labelWidth = std::max(labelWidth, labels.back().size());
     }
 
-    // Never use more columns than there are items (and always at least one)
     size_t cols = static_cast<size_t>(std::max(1, collumns));
     if (!labels.empty()) cols = std::min(cols, labels.size());
 
@@ -152,11 +142,9 @@ void printMenu(std::string name, std::vector<std::string> items, int collumns = 
     const size_t blockWidth = cols * labelWidth + (cols - 1) * COLUMN_GAP;
     const std::string blockIndent = indent(blockWidth);
 
-    // Top line + title
     std::cout << line << '\n';
     std::cout << indent(name.size()) << name << "\n\n";
 
-    // Items, filled left to right, top to bottom; the block is centered as a whole
     for (size_t i = 0; i < labels.size(); i += cols)
     {
         std::cout << blockIndent;
@@ -165,14 +153,12 @@ void printMenu(std::string name, std::vector<std::string> items, int collumns = 
             const std::string& label = labels[i + c];
             std::cout << label;
 
-            // Pad every column except the last one in the row
             if (c + 1 < cols && i + c + 1 < labels.size())
                 std::cout << std::string(labelWidth - label.size() + COLUMN_GAP, ' ');
         }
         std::cout << '\n';
     }
 
-    // Bottom line
     std::cout << '\n' << line << '\n';
 }
 
